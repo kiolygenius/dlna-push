@@ -9,7 +9,10 @@ set(LIB_SRC
         src/upnp++/UpnpContextManager.cpp
         src/upnp++/UpnpContext.cpp
         src/upnp++/UpnpControlPoint.cpp
-        src/upnp++/UpnpDeviceProxy.cpp)
+        src/upnp++/UpnpDeviceProxy.cpp
+        src/upnp++/UpnpServiceProxy.cpp
+        src/upnp++/UpnpAVTransportServiceProxy.cpp
+        src/upnp++/UpnpDeviceInfo.cpp)
 
 set(SRC src/main.cpp
         src/PushService.cpp

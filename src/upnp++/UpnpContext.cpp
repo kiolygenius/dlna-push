@@ -9,7 +9,11 @@ UpnpContext::UpnpContext(UpnpContext::RawHandlerPtr raw)
 
 UpnpContext::~UpnpContext() 
 {
-    
+    if (context)
+    {
+        g_object_unref(context);
+        context = nullptr;
+    }
 }
 
 UpnpControlPoint::SPtr UpnpContext::CreateMediaRendererControlPoint() const

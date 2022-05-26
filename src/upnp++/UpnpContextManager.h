@@ -24,7 +24,7 @@ public:
         F_IPV6 = G_SOCKET_FAMILY_IPV6
     };
     static SPtr CreateFull(SSDPVersion, SOCKET_FAMILY, int);
-    unsigned long OnContextAvailable(const std::function<void(const UpnpContextManager&, const UpnpContext&)> &);
+    unsigned long OnContextAvailable(const std::function<void(const UpnpContextManager::SPtr&, const UpnpContext::SPtr&)> &);
     void TakeOverControlPoint(const UpnpControlPoint::SPtr &);
 
 private:
@@ -35,7 +35,7 @@ private:
     RawHandlerType pcm;
     std::vector<UpnpContext::SPtr> contexts;
     std::vector<UpnpControlPoint::SPtr> control_points;
-    std::map<int, std::function<void(const UpnpContextManager&, const UpnpContext&)> > callback_mapper;
+    std::map<int, std::function<void(const UpnpContextManager::SPtr&, const UpnpContext::SPtr&)> > callback_mapper;
     uintptr_t last_mapper_key;
 
     static std::map<RawHandlerType, WPtr> s_cm_mapper;

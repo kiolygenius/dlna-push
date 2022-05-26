@@ -17,14 +17,14 @@ UpnpControlPoint::~UpnpControlPoint()
     }
 }
 
-unsigned long UpnpControlPoint::OnDeviceAvailable(const std::function<void(const UpnpControlPoint&, const UpnpDeviceProxy&)> &cb) 
+unsigned long UpnpControlPoint::OnDeviceAvailable(const std::function<void(const UpnpControlPoint::SPtr&, const UpnpDeviceProxy::SPtr&)> &cb) 
 {
     uintptr_t callback_key = ++last_callback_key;
     callback_mapper.insert(make_pair(callback_key, cb));
     return SignalConnect("device-proxy-available", GCallback(&UpnpControlPoint::raw_device_available_cb), callback_key);
 }
 
-unsigned long UpnpControlPoint::OnDeviceUnavailable(const std::function<void(const UpnpControlPoint&, const UpnpDeviceProxy&)> &cb) 
+unsigned long UpnpControlPoint::OnDeviceUnavailable(const std::function<void(const UpnpControlPoint::SPtr&, const UpnpDeviceProxy::SPtr&)> &cb) 
 {
     uintptr_t callback_key = ++last_callback_key;
     callback_mapper.insert(make_pair(callback_key, cb));
@@ -46,7 +46,7 @@ void UpnpControlPoint::raw_device_available_cb(RawHandlerPtr p, UpnpDeviceProxy:
         _this->devices.insert(pDevice);
         auto cb_it = _this->callback_mapper.find(reinterpret_cast<uintptr_t>(user_data));
         if (cb_it != _this->callback_mapper.cend()) {
-            (cb_it->second)(*_this, *pDevice);
+            (cb_it->second)(_this, pDevice);
         }
     }
 }
@@ -61,7 +61,7 @@ void UpnpControlPoint::raw_device_unavailable_cb(RawHandlerPtr p, UpnpDeviceProx
         auto device_it = std::find_if(
             _this->devices.cbegin(), 
             _this->devices.cend(), 
-            [dp, &comparator](const auto &obj) { 
+            [dp, &comparator](const auto &obj) {
                 return comparator(obj, dp); 
             }
         );
@@ -69,7 +69,7 @@ void UpnpControlPoint::raw_device_unavailable_cb(RawHandlerPtr p, UpnpDeviceProx
         _this->devices.erase(device_it);
         auto cb_it = _this->callback_mapper.find(reinterpret_cast<uintptr_t>(user_data));
         if (cb_it != _this->callback_mapper.cend()) {
-            (cb_it->second)(*_this, *pDevice);
+            (cb_it->second)(_this, pDevice);
         }
     }
 }

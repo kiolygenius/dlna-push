@@ -11,7 +11,7 @@ UpnpContextManager::UpnpContextManager(GUPnPContextManager *handler)
 
 UpnpContextManager::~UpnpContextManager()
 {
-
+    g_object_unref(pcm);
 }
 
 UpnpContextManager::SPtr UpnpContextManager::CreateFull(UpnpContextManager::SSDPVersion ssdp_v, SOCKET_FAMILY family, int port)
@@ -37,7 +37,7 @@ void UpnpContextManager::raw_context_available_cb(GUPnPContextManager *cm, GUPnP
             {
                 auto ctx = std::make_shared<UpnpContext>(context);
                 p->contexts.push_back(ctx);
-                (cb_it->second)(*p, *ctx);
+                (cb_it->second)(p, ctx);
             }
         }
     }
@@ -54,7 +54,7 @@ unsigned long UpnpContextManager::SignalConnect(const std::string &signal, GCall
     );
 }
 
-unsigned long UpnpContextManager::OnContextAvailable(const std::function<void(const UpnpContextManager&, const UpnpContext&)> &callback)
+unsigned long UpnpContextManager::OnContextAvailable(const std::function<void(const UpnpContextManager::SPtr&, const UpnpContext::SPtr&)> &callback)
 {
     uintptr_t new_key = ++last_mapper_key;
     callback_mapper.insert(std::make_pair(new_key, callback));
