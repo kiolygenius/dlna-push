@@ -24,6 +24,12 @@ UpnpContextManager::SPtr UpnpContextManager::CreateFull(UpnpContextManager::SSDP
     return p;
 }
 
+extern "C" {
+void raw_context_available_cb_wrapper(GUPnPContextManager *cm, GUPnPContext *context, gpointer user_data)
+{
+    UpnpContextManager::raw_context_available_cb(cm, context, user_data);
+}
+}
 void UpnpContextManager::raw_context_available_cb(GUPnPContextManager *cm, GUPnPContext *context, gpointer user_data)
 {
     auto it = s_cm_mapper.find(cm);
@@ -46,19 +52,20 @@ void UpnpContextManager::raw_context_available_cb(GUPnPContextManager *cm, GUPnP
 
 unsigned long UpnpContextManager::SignalConnect(const std::string &signal, GCallback cb, uintptr_t new_key)
 {
-    return g_signal_connect(
+    auto handler = g_signal_connect(
         pcm,
         signal.c_str(),
         cb,
         reinterpret_cast<void*>(new_key)
     );
+    return handler;
 }
 
 unsigned long UpnpContextManager::OnContextAvailable(const std::function<void(const UpnpContextManager::SPtr&, const UpnpContext::SPtr&)> &callback)
 {
     uintptr_t new_key = ++last_mapper_key;
     callback_mapper.insert(std::make_pair(new_key, callback));
-    return SignalConnect("context-available", G_CALLBACK(&UpnpContextManager::raw_context_available_cb), new_key);
+    return SignalConnect("context-available", G_CALLBACK(raw_context_available_cb_wrapper), new_key);
 }
 
 void UpnpContextManager::TakeOverControlPoint(const UpnpControlPoint::SPtr & cp)

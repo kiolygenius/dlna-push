@@ -2,6 +2,19 @@
 #include <vector>
 #include <cassert>
 
+extern "C" {
+
+void set_av_transport_uri_cb_wrapper(GObject *object, GAsyncResult *res, gpointer user_data)
+{
+    UpnpAVTransportServiceProxy::set_av_transport_uri_cb(object, res, user_data);
+}
+void av_transport_action_cb_wrapper(GObject *object, GAsyncResult *res, gpointer user_data)
+{
+    UpnpAVTransportServiceProxy::av_transport_action_cb(object, res, user_data);
+}
+
+}
+
 std::map<UpnpAVTransportServiceProxy::RawhandlerPtr, UpnpAVTransportServiceProxy::WPtr> UpnpAVTransportServiceProxy::s_raw_callback_mapper;
 
 const char *const UpnpAVTransportServiceProxy::ControlType::Play = "Play";
@@ -59,7 +72,7 @@ void UpnpAVTransportServiceProxy::SetUri(const std::string &uri, const std::opti
         handler,
         action,
         NULL,
-        &UpnpAVTransportServiceProxy::set_av_transport_uri_cb,
+        set_av_transport_uri_cb_wrapper,
         reinterpret_cast<gpointer>(callback_key)
     );
     gupnp_service_proxy_action_unref(action);
@@ -139,7 +152,7 @@ void UpnpAVTransportServiceProxy::Control(UpnpAVTransportServiceProxy::ControlTy
         handler,
         action,
         nullptr,
-        &UpnpAVTransportServiceProxy::av_transport_action_cb,
+        av_transport_action_cb_wrapper,
         reinterpret_cast<gpointer>(callback_key)
     );
 

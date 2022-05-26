@@ -27,10 +27,11 @@ public:
     unsigned long OnContextAvailable(const std::function<void(const UpnpContextManager::SPtr&, const UpnpContext::SPtr&)> &);
     void TakeOverControlPoint(const UpnpControlPoint::SPtr &);
 
+    static void raw_context_available_cb(GUPnPContextManager *cm, GUPnPContext *context, gpointer user_data);
+    
 private:
     UpnpContextManager(GUPnPContextManager*);
     unsigned long SignalConnect(const std::string &signal, GCallback cb, uintptr_t new_key);
-    static void raw_context_available_cb(GUPnPContextManager *cm, GUPnPContext *context, gpointer user_data);
 private:
     RawHandlerType pcm;
     std::vector<UpnpContext::SPtr> contexts;

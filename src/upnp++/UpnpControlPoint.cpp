@@ -17,26 +17,39 @@ UpnpControlPoint::~UpnpControlPoint()
     }
 }
 
+extern "C" {
+
+void raw_device_available_cb_wrapper(UpnpControlPoint::RawHandlerPtr p, UpnpDeviceProxy::RawHandlerPtr dp, void* user_data)
+{
+    UpnpControlPoint::raw_device_available_cb(p, dp, user_data);
+}
+
+void raw_device_unavailable_cb_wrapper(UpnpControlPoint::RawHandlerPtr p, UpnpDeviceProxy::RawHandlerPtr dp, void* user_data) 
+{
+    UpnpControlPoint::raw_device_unavailable_cb(p, dp, user_data);
+}
+
+}
+
 unsigned long UpnpControlPoint::OnDeviceAvailable(const std::function<void(const UpnpControlPoint::SPtr&, const UpnpDeviceProxy::SPtr&)> &cb) 
 {
     uintptr_t callback_key = ++last_callback_key;
     callback_mapper.insert(make_pair(callback_key, cb));
-    return SignalConnect("device-proxy-available", GCallback(&UpnpControlPoint::raw_device_available_cb), callback_key);
+    return SignalConnect("device-proxy-available", GCallback(raw_device_available_cb_wrapper), callback_key);
 }
 
 unsigned long UpnpControlPoint::OnDeviceUnavailable(const std::function<void(const UpnpControlPoint::SPtr&, const UpnpDeviceProxy::SPtr&)> &cb) 
 {
     uintptr_t callback_key = ++last_callback_key;
     callback_mapper.insert(make_pair(callback_key, cb));
-    return SignalConnect("device-proxy-unavailable", GCallback(&UpnpControlPoint::raw_device_available_cb), callback_key);
+    return SignalConnect("device-proxy-unavailable", GCallback(raw_device_unavailable_cb_wrapper), callback_key);
 }
 
 unsigned long UpnpControlPoint::SignalConnect(const std::string &signal, GCallback cb, uintptr_t user_data) 
 {
     return g_signal_connect(handler, signal.c_str(), cb, reinterpret_cast<void*>(user_data));
 }
-
-void UpnpControlPoint::raw_device_available_cb(RawHandlerPtr p, UpnpDeviceProxy::RawHandlerPtr dp, void* user_data) 
+void UpnpControlPoint::raw_device_available_cb(UpnpControlPoint::RawHandlerPtr p, UpnpDeviceProxy::RawHandlerPtr dp, void* user_data) 
 {
     auto it = s_controlpointer_mapper.find(p);
     if (it != s_controlpointer_mapper.cend())

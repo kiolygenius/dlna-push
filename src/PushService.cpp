@@ -147,6 +147,7 @@ void PushService::List(int interval)
         std::cout << "\n" << "All devices found." << '\n';
         finish = true;
         task_pending = {};
+        return {};
     };
 
     auto start = std::chrono::steady_clock::now();

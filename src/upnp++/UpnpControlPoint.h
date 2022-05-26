@@ -24,10 +24,10 @@ public:
     unsigned long OnDeviceUnavailable(const DEVICE_CALLBACK_T &);
     inline RawHandlerPtr GetRawHandler() const { return handler; }
     
-private:
-    unsigned long SignalConnect(const std::string &signal, GCallback cb, uintptr_t user_data);
     static void raw_device_available_cb(RawHandlerPtr, UpnpDeviceProxy::RawHandlerPtr, void*);
     static void raw_device_unavailable_cb(RawHandlerPtr, UpnpDeviceProxy::RawHandlerPtr, void*);
+private:
+    unsigned long SignalConnect(const std::string &signal, GCallback cb, uintptr_t user_data);
 
     std::map<uintptr_t, DEVICE_CALLBACK_T> callback_mapper;
     std::set<UpnpDeviceProxy::SPtr, UpnpDeviceProxy::Comparator> devices;
