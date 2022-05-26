@@ -52,12 +52,7 @@ void UpnpContextManager::raw_context_available_cb(GUPnPContextManager *cm, GUPnP
 
 unsigned long UpnpContextManager::SignalConnect(const std::string &signal, GCallback cb, uintptr_t new_key)
 {
-    auto handler = g_signal_connect(
-        pcm,
-        signal.c_str(),
-        cb,
-        reinterpret_cast<void*>(new_key)
-    );
+    auto handler = g_signal_connect(pcm, signal.c_str(), cb, reinterpret_cast<void*>(new_key));
     return handler;
 }
 

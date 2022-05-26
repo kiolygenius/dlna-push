@@ -13,11 +13,15 @@ struct context
 };
 static std::shared_ptr<context> pContext;
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-
+    GError *error = NULL;
     auto r_ctx = g_option_context_new ("- UPnP AV control point");
     g_option_context_add_main_entries (r_ctx, entries, "dlna-cast");
+    if (!g_option_context_parse(r_ctx, &argc, &argv, &error)) {
+		g_print("option parsing failed: %s\n", error->message);
+		return 1;
+	}
 
     pContext = std::shared_ptr<context>(new context {std::make_unique<PushService>(), NULL});
     pContext->pService->InitUPnp(0);

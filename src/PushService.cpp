@@ -40,7 +40,7 @@ bool PushService::IsFinished() const
 
 bool PushService::InitUPnp(int port) 
 {
-    auto pCM = UpnpContextManager::CreateFull(
+    pCM = UpnpContextManager::CreateFull(
         UpnpContextManager::SSDPVersion::GSSDP_UDA_VERSION_1_0, 
         UpnpContextManager::SOCKET_FAMILY::F_IPV4,
         port
@@ -57,9 +57,11 @@ bool PushService::InitUPnp(int port)
 
 void PushService::OnContextAvailable(const UpnpContextManager::SPtr &cm, const UpnpContext::SPtr &c)
 {
-    auto cp = c->CreateMediaRendererControlPoint();
-    cp->OnDeviceAvailable(std::bind(&PushService::OnDeviceOnline, this, std::placeholders::_1, std::placeholders::_2));
-    cp->OnDeviceUnavailable(std::bind(&PushService::OnDeviceOffline, this, std::placeholders::_1, std::placeholders::_2));
+    if (pCP)
+        return;
+    pCP = c->CreateMediaRendererControlPoint();
+    pCP->OnDeviceAvailable(std::bind(&PushService::OnDeviceOnline, this, std::placeholders::_1, std::placeholders::_2));
+    pCP->OnDeviceUnavailable(std::bind(&PushService::OnDeviceOffline, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 

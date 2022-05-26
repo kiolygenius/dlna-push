@@ -28,6 +28,8 @@ private:
 
     bool finish;
     std::optional<TaskT> task_pending;
+    UpnpContextManager::SPtr pCM;
+    UpnpControlPoint::SPtr pCP;
 };
 
 
