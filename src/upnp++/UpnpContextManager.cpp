@@ -11,6 +11,10 @@ UpnpContextManager::UpnpContextManager(GUPnPContextManager *handler)
 
 UpnpContextManager::~UpnpContextManager()
 {
+    contexts.clear();
+    control_points.clear();
+    callback_mapper.clear();
+    s_cm_mapper.erase(s_cm_mapper.find(pcm));
     g_object_unref(pcm);
 }
 

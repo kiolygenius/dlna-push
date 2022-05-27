@@ -9,14 +9,14 @@ UpnpDeviceProxy::UpnpDeviceProxy(RawHandlerPtr p)
 
 UpnpDeviceProxy::~UpnpDeviceProxy() 
 {
-    g_object_unref(handler);
+    // dispatcher owns the handler, shall not unref
 }
 
 
 UpnpDeviceProxy::Comparator UpnpDeviceProxy::DefaultComparator() 
 {
     return [](const UpnpDeviceProxy::SPtr &left, const UpnpDeviceProxy::SPtr &right)->bool {
-        return left->handler < right->handler;
+        return left->GetDeviceInfo()->Udn().compare(right->GetDeviceInfo()->Udn()) < 0;
     };
 }
 

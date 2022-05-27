@@ -18,6 +18,7 @@ public:
     ~UpnpDeviceInfo();
 
     std::string Name() const;
+    std::string Udn() const;
 
     UpnpAVTransportServiceProxy::SPtr GetAVTransport() const;
 

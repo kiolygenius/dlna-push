@@ -11,21 +11,26 @@
 
 class UpnpDeviceProxy;
 
-class UpnpControlPoint
+class UpnpControlPoint : std::enable_shared_from_this<UpnpControlPoint>
 {
 public:
     typedef GUPnPControlPoint* RawHandlerPtr;
     typedef std::shared_ptr<UpnpControlPoint> SPtr;
     typedef std::weak_ptr<UpnpControlPoint> WPtr;
     typedef std::function<void(const UpnpControlPoint::SPtr&, const UpnpDeviceProxy::SPtr&)> DEVICE_CALLBACK_T;
+
     UpnpControlPoint(RawHandlerPtr);
     ~UpnpControlPoint();
+
     unsigned long OnDeviceAvailable(const DEVICE_CALLBACK_T &);
     unsigned long OnDeviceUnavailable(const DEVICE_CALLBACK_T &);
     inline RawHandlerPtr GetRawHandler() const { return handler; }
+    void ActiveResourceBrowser(bool active);
     
+    static SPtr Create(RawHandlerPtr);
     static void raw_device_available_cb(RawHandlerPtr, UpnpDeviceProxy::RawHandlerPtr, void*);
     static void raw_device_unavailable_cb(RawHandlerPtr, UpnpDeviceProxy::RawHandlerPtr, void*);
+    
 private:
     unsigned long SignalConnect(const std::string &signal, GCallback cb, uintptr_t user_data);
 

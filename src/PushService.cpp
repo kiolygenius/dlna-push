@@ -23,6 +23,7 @@ void PushService::PoolOver()
     {
         std::any param(nullptr);
         std::optional<std::any> ret;
+        int n = 0;
         do {
             ret = task_pending.value()(param);
             if (ret)
@@ -41,7 +42,7 @@ bool PushService::IsFinished() const
 bool PushService::InitUPnp(int port) 
 {
     pCM = UpnpContextManager::CreateFull(
-        UpnpContextManager::SSDPVersion::GSSDP_UDA_VERSION_1_0, 
+        UpnpContextManager::SSDPVersion::GSSDP_UDA_VERSION_1_1, 
         UpnpContextManager::SOCKET_FAMILY::F_IPV4,
         port
     );
@@ -57,11 +58,11 @@ bool PushService::InitUPnp(int port)
 
 void PushService::OnContextAvailable(const UpnpContextManager::SPtr &cm, const UpnpContext::SPtr &c)
 {
-    if (pCP)
-        return;
-    pCP = c->CreateMediaRendererControlPoint();
+    auto pCP = c->CreateMediaRendererControlPoint();
     pCP->OnDeviceAvailable(std::bind(&PushService::OnDeviceOnline, this, std::placeholders::_1, std::placeholders::_2));
     pCP->OnDeviceUnavailable(std::bind(&PushService::OnDeviceOffline, this, std::placeholders::_1, std::placeholders::_2));
+    pCP->ActiveResourceBrowser(true);
+    pCM->TakeOverControlPoint(pCP);
 }
 
 
@@ -71,6 +72,7 @@ void PushService::OnDeviceOnline(const UpnpControlPoint::SPtr &cp, const UpnpDev
     if (devices.cend() == devices.find(d))
     {
         devices.insert(d);
+        // std::cerr << d->GetDeviceInfo()->Name() << '\n';
     }
 }
 
@@ -93,36 +95,32 @@ void PushService::Play(const std::string &device, const std::string &uri)
         {
             if (!result) 
             {
-                std::cout << "SetUri for media renderer failed.\n"
+                std::cerr << "SetUri for media renderer failed.\n"
                     << "[Device]: " << device << '\n'
                     << "[URL]: " << uri << '\n';
             }
             else
             {
-                pService->Control(UpnpAVTransportServiceProxy::ControlType::Play, [device, uri, this](bool result)
+                pService->Control(UpnpAVTransportServiceProxy::ControlType::Play, [pService, device, uri, this](bool result)
                 {
-                    if (result)
+                    if (!result)
                     {
-                        std::cout << "Play success.\n";
+                        std::cerr << "Play fail.\n";
+                        std::cerr << "[Device]: " << device << '\n';
+                        std::cerr << "[URL]: " << uri << '\n';
                     }
-                    else
-                    {
-                        std::cout << "Play fail.\n";
-                    }
-
-                    std::cout << "[Device]: " << device << '\n';
-                    std::cout << "[URL]: " << uri << '\n';
                     finish = true;
                     task_pending = {};
                 });
             }
         });
+        task_pending = {};
         return {};
     };
 
     TaskT find_device = [push_url, device, this](std::any)->std::optional<std::any> 
     {
-        decltype(devices)::const_iterator it = std::find_if(devices.cbegin(), devices.cend(), [&device](const UpnpDeviceProxy::SPtr &p) { return p->GetDeviceInfo()->Name() == device; });
+        decltype(devices)::const_iterator it = std::find_if(devices.cbegin(), devices.cend(), [&device](const UpnpDeviceProxy::SPtr &p) { return p->GetDeviceInfo()->Udn().find(device) != std::string::npos; });
         if (it != devices.cend()) 
         {
             task_pending = push_url;
@@ -144,9 +142,11 @@ void PushService::List(int interval)
     {
         std::for_each(devices.cbegin(), devices.cend(), [](const UpnpDeviceProxy::SPtr &p) 
         {
-            std::cout << p->GetDeviceInfo()->Name() << '\n';
+            std::cout << "> " << p->GetDeviceInfo()->Name() 
+                << " (" << p->GetDeviceInfo()->Udn() << ")"
+                << '\n';
         });
-        std::cout << "\n" << "All devices found." << '\n';
+        std::cout << "\n" << devices.size() << " devices found." << '\n';
         finish = true;
         task_pending = {};
         return {};

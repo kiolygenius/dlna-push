@@ -24,14 +24,21 @@ const char *const UpnpAVTransportServiceProxy::ControlType::Stop = "Stop";
 UpnpAVTransportServiceProxy::UpnpAVTransportServiceProxy(UpnpAVTransportServiceProxy::RawhandlerPtr p)
 : UpnpServiceProxy(p)
 {
-    auto pThis = std::static_pointer_cast<UpnpAVTransportServiceProxy>(shared_from_this());
-    s_raw_callback_mapper.insert(std::make_pair(p, WPtr(pThis)));
 }
 
 UpnpAVTransportServiceProxy::~UpnpAVTransportServiceProxy()
 {
-
+    callback_mapper.clear();
+    s_raw_callback_mapper.erase(s_raw_callback_mapper.find(handler));
 }
+
+UpnpAVTransportServiceProxy::SPtr UpnpAVTransportServiceProxy::Create(UpnpAVTransportServiceProxy::RawhandlerPtr p)
+{
+    auto ptr = std::make_shared<UpnpAVTransportServiceProxy>(p);
+    s_raw_callback_mapper.insert(std::make_pair(p, WPtr(ptr)));
+    return ptr;
+}
+
 
 void UpnpAVTransportServiceProxy::SetUri(const std::string &uri, const std::optional<UpnpAVTransportServiceProxy::BoolCallbackT> &result_callback)
 {

@@ -10,11 +10,21 @@ UpnpControlPoint::UpnpControlPoint(RawHandlerPtr p)
 
 UpnpControlPoint::~UpnpControlPoint() 
 {
+    callback_mapper.clear();
+    devices.clear();
     if (handler)
     {
         g_object_unref(handler);
+        s_controlpointer_mapper.erase(s_controlpointer_mapper.find(handler));
         handler = nullptr;
     }
+}
+
+UpnpControlPoint::SPtr UpnpControlPoint::Create(RawHandlerPtr dp)
+{
+    auto p = std::make_shared<UpnpControlPoint>(dp);
+    s_controlpointer_mapper[dp] = p;
+    return p;
 }
 
 extern "C" {
@@ -85,4 +95,9 @@ void UpnpControlPoint::raw_device_unavailable_cb(RawHandlerPtr p, UpnpDeviceProx
             (cb_it->second)(_this, pDevice);
         }
     }
+}
+
+void UpnpControlPoint::UpnpControlPoint::ActiveResourceBrowser(bool active) 
+{
+    gssdp_resource_browser_set_active(GSSDP_RESOURCE_BROWSER(handler), active ? TRUE : FALSE);
 }

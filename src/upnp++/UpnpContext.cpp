@@ -9,17 +9,13 @@ UpnpContext::UpnpContext(UpnpContext::RawHandlerPtr raw)
 
 UpnpContext::~UpnpContext() 
 {
-    if (context)
-    {
-        g_object_unref(context);
-        context = nullptr;
-    }
+
 }
 
 UpnpControlPoint::SPtr UpnpContext::CreateMediaRendererControlPoint() const
 {
     constexpr auto RENDERER = "urn:schemas-upnp-org:device:MediaRenderer:1";
-    return std::make_shared<UpnpControlPoint>(
+    return UpnpControlPoint::Create(
         gupnp_control_point_new(context, RENDERER)
     );
 }

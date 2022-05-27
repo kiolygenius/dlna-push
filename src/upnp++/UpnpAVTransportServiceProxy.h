@@ -29,6 +29,7 @@ public:
     void SetUri(const std::string &, const std::optional<BoolCallbackT> &);
     void Control(ControlType type, const std::optional<BoolCallbackT> &);
 
+    static SPtr Create(RawhandlerPtr p);
     static void set_av_transport_uri_cb(GObject *object, GAsyncResult *res, gpointer user_data);
     static void av_transport_action_cb (GObject *object, GAsyncResult *res, gpointer user_data);
     
