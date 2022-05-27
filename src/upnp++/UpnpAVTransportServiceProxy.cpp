@@ -60,7 +60,7 @@ void UpnpAVTransportServiceProxy::SetUri(const std::string &uri, const std::opti
         0,
         "CurrentURI",
         G_TYPE_STRING,
-        uri,
+        uri.c_str(),
         "CurrentURIMetaData",
         G_TYPE_STRING,
         didl_meta.data(),

@@ -98,6 +98,7 @@ void PushService::Play(const std::string &device, const std::string &uri)
                 std::cerr << "SetUri for media renderer failed.\n"
                     << "[Device]: " << device << '\n'
                     << "[URL]: " << uri << '\n';
+                finish = true;
             }
             else
             {
