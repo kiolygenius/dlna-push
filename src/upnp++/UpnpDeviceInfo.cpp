@@ -14,7 +14,7 @@ UpnpDeviceInfo::~UpnpDeviceInfo()
 
 UpnpAVTransportServiceProxy::SPtr UpnpDeviceInfo::GetAVTransport() const 
 {
-    if (av_transport.expired())    
+    if (!av_transport)    
     {
         auto p = UpnpAVTransportServiceProxy::Create(
             GUPNP_SERVICE_PROXY(
@@ -29,7 +29,7 @@ UpnpAVTransportServiceProxy::SPtr UpnpDeviceInfo::GetAVTransport() const
     }
     else
     {
-        return av_transport.lock();
+        return av_transport;
     }
 }
 

@@ -102,7 +102,7 @@ void PushService::Play(const std::string &device, const std::string &uri)
             }
             else
             {
-                pService->Control(UpnpAVTransportServiceProxy::ControlType::Play, [pService, device, uri, this](bool result)
+                pService->Control(UpnpAVTransportServiceProxy::ControlType::Play, [device, uri, this](bool result)
                 {
                     if (!result)
                     {

@@ -23,7 +23,7 @@ public:
     UpnpAVTransportServiceProxy::SPtr GetAVTransport() const;
 
 private:
-    mutable UpnpAVTransportServiceProxy::WPtr av_transport;
+    mutable UpnpAVTransportServiceProxy::SPtr av_transport;
 
     RawHandlerPtr handler;
 };
